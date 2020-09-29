@@ -31,6 +31,7 @@ class DataReader(object):
         Load the Data Set. Loading Multiple Data sets are allowed.
         :param overview: [str], turn "on" to make an overview of Data Set.
         :return:
+        Tuple(input_set,target_set)
         input_set: [Dict]. Key is the number of the Data Set, Value is ndarray, Labeled Input Data Set.
         target_set: [Dict]. Key is the number of the Data Set; Value is ndarray, Labeled Target Data Set.
         """
@@ -57,8 +58,9 @@ class DataReader(object):
          Load the Data Set and then concatenate them. Loading Multiple Data sets are allowed.
         :param overview: [str], turn "on" to make an overview of Data Set.
         :return:
-        input_set: [ndarray], concatenated, labeled Input Data Set.
-        target_set: [ndarray]. concatenated, labeled Target Data Set.
+        Tuple(input_set,target_set)
+        Tuple[0] input_set: [ndarray], concatenated, labeled Input Data Set.
+        Tuple[1] target_set: [ndarray]. concatenated, labeled Target Data Set.
         """
         df=[]
         count = 0
@@ -76,8 +78,9 @@ class DataReader(object):
         return input_set,target_set
 
 # Testing
-DR=DataReader("Training Data","daten1P","daten2P")
+# DR=DataReader("Training Data","daten1P")
 # input_set,target_set=DR.LoadData()
-input_set,target_set=DR.LoadConcatData()
-print(type(input_set))
+# print(input_set[0].shape)
+# input_set,target_set=DR.LoadConcatData()
+# print(type(input_set))
 # df=pd.read_csv("Training Data/daten1P.csv")
