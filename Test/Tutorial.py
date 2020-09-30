@@ -122,3 +122,4 @@ Lisa.dota='Ancient'
 # F String Formating
 w={"sam":"ancient","john":4000}
 print(f'MMR of {w["sam"]} is {w["john"]}')
+
