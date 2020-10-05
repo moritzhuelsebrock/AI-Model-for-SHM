@@ -48,6 +48,12 @@ class Data_Preperation:
                     train_test_split(Split_Dataset[0][i], Split_Dataset[1][i], test_size=del_size/(1-test_size), random_state=random_state)
         return Split_Dataset
 
+    def MergeData(self,Dataset):
+        Merge_Dataset=["",""]
+        Merge_Dataset[0]=Dataset[0][0]
+        Merge_Dataset[1]=Dataset[1][0]
+        return Merge_Dataset
+
     def MergeSplitData(self,Split_Dataset):
         """
         Merge the already split Data Set.
@@ -96,6 +102,8 @@ class Data_Preperation:
                 print(f"Standard Deviation of {self.Label[i]}. Set is {scaler.var_}")
         self.Scaled_Dataset=Scaled_Dataset
         return Scaled_Dataset
+
+
 
 # Test
 # path = os.path.abspath(os.path.join(os.getcwd(), "../.."))

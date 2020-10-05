@@ -26,7 +26,7 @@ class DataReader(object):
         print(df.head(5))
         print("Dimension is",df.shape)
 
-    def LoadData(self,overview='off'):
+    def LoadData(self,Merge=False,overview='off'):
         """
         Load the Data Set. Loading Multiple Data sets are allowed.
         :param overview: [str], turn "on" to make an overview of Data Set.
@@ -38,18 +38,31 @@ class DataReader(object):
         df=[]
         input_set={}
         target_set={}
+        count=0
 
-        for i in range(self.file_name.__len__()):
-            df.append(pd.read_csv(f'{self.path}/{self.file_name[i]}.{self.type}'))
-            input_set[i]=df[i][self.label_x].values
-            target_set[i]=df[i][self.label_y].values
+        if Merge==False:
 
-            if overview=='on':
-                self.DataOverview(df[i])
-                # print(df[i].head(5))
-                # print("Dimension is",df[i].shape)
+            for i in range(self.file_name.__len__()):
+                df.append(pd.read_csv(f'{self.path}/{self.file_name[i]}.{self.type}'))
+                input_set[i]=df[i][self.label_x].values
+                target_set[i]=df[i][self.label_y].values
 
-            print(f"{i+1} Data set has been loaded successfully.")
+                if overview=='on':
+                    self.DataOverview(df[i])
+                    # print(df[i].head(5))
+                    # print("Dimension is",df[i].shape)
+
+                print(f"{i+1} Data set has been loaded successfully.")
+
+        elif Merge==True:
+
+            for i in range(self.file_name.__len__()):
+                df.append(pd.read_csv(f'{self.path}/{self.file_name[i]}.{self.type}'))
+                count = count + 1
+            print(f"{count} Data Set has been concatenated successfully.")
+            df_Concat = pd.concat(df)
+            input_set[0] = df_Concat[self.label_x].values
+            target_set[0] = df_Concat[self.label_y].values
 
         return input_set,target_set
 

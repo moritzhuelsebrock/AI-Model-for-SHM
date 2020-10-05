@@ -8,10 +8,17 @@ class Regressor:
     def __init__(self,DP,op):
         self.Regression=self.OptRegression(DP,op)
     def OptRegression(self,DP,Op):
+        """
+        Training the optimal MLP Regressor.
+        :param DP: [Data_Preperation], Dataset after Pre Processing.
+        :param Op: [Hyperparameter], Optimized Hyperparameter.
+        :return:
+        OptRegressor: [MLP Regressor],Trained MLP Regressor with optimal Hyperparameter.
+        """
         OptRegressor=MLPRegressor(hidden_layer_sizes=Op.HiddenLayerSize,alpha=Op.alpha,max_iter=Op.Max_iter*2)
         OptRegressor.fit(DP.Scaled_Dataset[0],DP.Scaled_Dataset[1])
-        OptRegressor.score(DP.Scaled_Dataset[2],DP.Scaled_Dataset[3])
-        Prediction=OptRegressor.predict(DP.Scaled_Dataset[2])
+        # OptRegressor.score(DP.Scaled_Dataset[2],DP.Scaled_Dataset[3])
+        # Prediction=OptRegressor.predict(DP.Scaled_Dataset[2])
         return OptRegressor
         # return Prediction
     def IniRegression(self):

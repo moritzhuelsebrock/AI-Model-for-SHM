@@ -15,6 +15,12 @@ class Hyperparameter:
         self.Max_iter=0
 
     def SetOptHyperparameter(self,**Param):
+        """
+        Set Optimal Hyperparameter as Class attribute.
+        :param Param: [dict], HiddenLayerSize, alpha, Max_iter, OptimizingTime...
+        :return:
+        void
+        """
         self.HiddenLayerSize=Param["HiddenLayerSize"]
         self.alpha=Param["alpha"]
         self.Max_iter=Param["Max_iter"]
@@ -22,6 +28,12 @@ class Hyperparameter:
 
 
     def Initialization(self,deep):
+        """
+        Set up an initial MLP Regressor.
+        :param deep: Numbers of Hidden Layer.
+        :return:
+        estimator: [MLP Regressor], inital MLP with initial parameter.
+        """
         if deep == 1:
             estimator = MLPRegressor(solver="lbfgs", alpha=4.175e-05, hidden_layer_sizes=(53), max_iter=10000)
 
@@ -33,7 +45,20 @@ class Hyperparameter:
 
         return estimator
 
-    def HyperSearh(self,DP,deep=3, Development_Data=True, random_mode=True,iter=10,cv=5, OptInfo=False):
+    def HyperSearh(self,DP,deep=3, Development_Data=True, Customer_Data=False,random_mode=True,iter=10,cv=5, OptInfo=False):
+        """
+        Optimization and then Assignment of Hyperparameter. Either Random Search or Grid Search.
+        :param DP: [Data_Preperation], Dataset after Pre Processing.
+        :param deep: [int], Number of Hidden Layer.
+        :param Development_Data:[boolean], Using Development Data for optimization or not.
+        :param Customer_Data: [boolean], True when "Predicting" using Customer Data.
+        :param random_mode: [boolean], True: Random Search, False: Grid Search.
+        :param iter: [int], Number of Iteration Random Search.
+        :param cv: [int] Cross Validation by K-Fold. cv is the Factor K.
+        :param OptInfo: [boolean] Show concrete information of Optimization.
+        :return:
+        search_result: [Data Frame] Results of Optimization.
+        """
         time_start=time.time()
         width = int(DP.input_feature*DP.target_feature/math.gcd(DP.input_feature,DP.target_feature))
         candidate_neuron = range(DP.target_feature, width)
@@ -63,6 +88,8 @@ class Hyperparameter:
                             for layer_1 in candidate_neuron:
                                 if layer_4 < layer_3 and layer_3 < layer_2 and layer_2 < layer_1:
                                     self.HiddenLayerSize.append((layer_1, layer_2, layer_3, layer_4))
+
+        # Define the List of Hyperparmeter for Optimization
         param_space = {
         'hidden_layer_sizes': self.HiddenLayerSize,
         'alpha': np.logspace(-5, -2, 30),
@@ -76,12 +103,17 @@ class Hyperparameter:
         else:
             hyper_search = GridSearchCV(estimator, param_grid=param_space,n_jobs=-1)
 
+        if Customer_Data==True:
+            Development_Data=False
+
         if Development_Data==True:
             # Use Development Data to optimize
             hyper_search.fit(DP.Scaled_Dataset[4],DP.Scaled_Dataset[5])
         else:
-            # Use Training Data to optimize
+            # Use Training Data/Customer Data to optimize
             hyper_search.fit(DP.Scaled_Dataset[0], DP.Scaled_Dataset[1])
+
+
 
         time_end = time.time()
         self.SetOptHyperparameter(HiddenLayerSize=hyper_search.best_params_["hidden_layer_sizes"],
@@ -99,6 +131,14 @@ class Hyperparameter:
 
 
     def report_search(self,results, n_top=3, Overview=True):
+        """
+        Visualize the Result of optimization. Default: Show Top 3 Hyperparameter Set.
+        :param results: [Data Frame], cv_Result from Hypersearch.
+        :param n_top: [int], Top n Hyperparameter Set.
+        :param Overview: [boolean], True: Concrete Information, False: Result of Optimization.
+        :return:
+        df: [Data Frame], cv_Result from Hypersearch.
+        """
         df = pd.DataFrame(results)
         df = df.sort_values("rank_test_score")
         if Overview==True:
