@@ -3,12 +3,14 @@ import sys
 from Data import DataReader as DR
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-class DataPreperation:
+class Data_Preperation:
     def __init__(self, *data_set):
         self.input_set=data_set[0]
         self.target_set=data_set[1]
         self.Label={}
         self.Scaled_Dataset=[]
+        self.input_feature=self.input_set[0].shape[1]
+        self.target_feature=self.target_set[0].shape[1]
 
     def AddParameter(self,L,number):
         for i in range(number):
@@ -21,7 +23,7 @@ class DataPreperation:
         :param del_size: [float], Size of Development Data Set.
         :param random_state: [float], Random Seed.
         :return:
-        Split_Dataset(X_train, y_train, X_test, y_test, X_del, y_del).
+        Split_Dataset[X_train, y_train, X_test, y_test, X_del, y_del].
         Split_Dataset[0] X_train: [Dict]. Key is the number of the Data Set, value is Training Data Input.
         Split_Dataset[1] y_train: [Dict]. Key is the number of the Data Set, value is Training Data Target.
         Split_Dataset[2] X_test: [Dict]. Key is the number of the Data Set, value is Test Data Input.
@@ -68,7 +70,7 @@ class DataPreperation:
                         Merge_Dataset[i]=np.append(Merge_Dataset[i],Split_Dataset[i][j],axis=0)
         return Merge_Dataset
 
-    def DataScaling(self,Merge_Dataset,Mean=True,Var=False):
+    def DataScaling(self,Merge_Dataset,Mean=False,Var=False):
         """
         Use Mean Value and Standard Deviation of features to scale the Merged Data Set.
         :param Merge_Dataset: [List], Merged Data Set [X_train, y_train, X_test, y_test, X_del, y_del].
@@ -99,7 +101,8 @@ class DataPreperation:
 # path = os.path.abspath(os.path.join(os.getcwd(), "../.."))
 # print(sys.path)
 # dr=DR.DataReader("../../Data/Training Data","daten1P","daten2P","daten3P")
-# dp=DataPreperation(*dr.LoadData())
+# dp=Data_Preperation(*dr.LoadData())
+# print(f"Input_feature:{dp.input_feature},Target_feature:{dp.target_feature}")
 # print("Dimension of 1.Input Data Set:",dp.input_set[0].shape)
 # print("Dimension of 2.Input Data Set:",dp.input_set[1].shape)
 # d=dp.DataSplit(0.2,0.2)

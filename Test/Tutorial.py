@@ -20,6 +20,8 @@ d1 = {'sam' : 1.0, 'jack': 2.7, 'jason':5.0}
 d1["sam"]=1.3
 List1=d1.keys()
 List2=d1.values()
+para=dict(sam=1.0,jack=2.7)
+print(para['sam'])
 # print(List1)
 
 # Add/update element
