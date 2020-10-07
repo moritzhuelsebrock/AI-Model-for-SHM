@@ -4,13 +4,16 @@ from Data import DataReader as DR
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 class Data_Preperation:
-    def __init__(self, *data_set):
+    def __init__(self, *data_set,mode="Training"):
         self.input_set=data_set[0]
         self.target_set=data_set[1]
         self.Label={}
+        self.Split_Dataset=[]
         self.Scaled_Dataset=[]
         self.input_feature=self.input_set[0].shape[1]
         self.target_feature=self.target_set[0].shape[1]
+        if mode=="Predicting":
+            pass
 
     def AddParameter(self,L,number):
         for i in range(number):
@@ -46,20 +49,26 @@ class Data_Preperation:
             if not del_size==0:
                 Split_Dataset[0][i], Split_Dataset[4][i], Split_Dataset[1][i], Split_Dataset[5][i]= \
                     train_test_split(Split_Dataset[0][i], Split_Dataset[1][i], test_size=del_size/(1-test_size), random_state=random_state)
+
+        self.Split_Dataset=Split_Dataset
         return Split_Dataset
 
-    def MergeData(self,Dataset):
+    def MergeData(self):
+        """
+        Merge the Dataset(for Predicting)
+        :return:
+        Merge_Dataset: [List], [input, target]
+        """
         Merge_Dataset=["",""]
-        Merge_Dataset[0]=Dataset[0][0]
-        Merge_Dataset[1]=Dataset[1][0]
+        Merge_Dataset[0]=self.input_set[0]
+        Merge_Dataset[1]=self.target_set[0]
         return Merge_Dataset
 
-    def MergeSplitData(self,Split_Dataset):
+    def MergeSplitData(self):
         """
-        Merge the already split Data Set.
-        :param Split_Dataset: [List], Dict of 6 Seperate Data Set
+        Merge the already split Dataset(for Training)
         :return:
-        Merge_Dataset[X_train, y_train, X_test, y_test, X_del, y_del].
+        Merge_Dataset: [List], [X_train, y_train, X_test, y_test, X_del, y_del].
         Merge_Dataset[0]: [nparray], merged Training Input Set
         Merge_Dataset[1]: [nparray], merged Training Target Set
         Merge_Dataset[2]: [nparray], merged Test Input Set
@@ -68,29 +77,33 @@ class Data_Preperation:
         Merge_Dataset[5]: [nparray], merged Development Target Set)
         """
         Merge_Dataset=[]
-        for i in range(len(Split_Dataset)):
-            Merge_Dataset.append(Split_Dataset[i][0])
-            if not len(Split_Dataset[0])==1:
-                for j in range(len(Split_Dataset[i])):
+        for i in range(len(self.Split_Dataset)):
+            Merge_Dataset.append(self.Split_Dataset[i][0])
+            if not len(self.Split_Dataset[0])==1:
+                for j in range(len(self.Split_Dataset[i])):
                     if j>0:
-                        Merge_Dataset[i]=np.append(Merge_Dataset[i],Split_Dataset[i][j],axis=0)
+                        Merge_Dataset[i]=np.append(Merge_Dataset[i], self.Split_Dataset[i][j],axis=0)
         return Merge_Dataset
 
     def DataScaling(self,Merge_Dataset,Mean=False,Var=False):
+
         """
-        Use Mean Value and Standard Deviation of features to scale the Merged Data Set.
-        :param Merge_Dataset: [List], Merged Data Set [X_train, y_train, X_test, y_test, X_del, y_del].
+        Use Mean Value and Standard Deviation of features to scale the Merged Data Set(for Training / Predicting).
+        :param Merge_Dataset: [List], For Training: [X_train, y_train, X_test, y_test, X_del, y_del]
+                                      For Predicting: [input, target]
         :param Mean: [boolean], show Mean value of each feature when "True".
         :param Var:  [boolean], shown Variance of each feature when "True".
         :return:
-        Scaled_Dataset [X_train, y_train, X_test, y_test, X_del, y_del]
-        Scaled_Dataset[0]: [nparray], Scaled Training Input Set
-        Scaled_Dataset[1]: [nparray], Scaled Training Target Set
+        Scaled_Dataset for Training: [X_train, y_train, X_test, y_test, X_del, y_del]
+                       for Predicting: [input, target]
+        Scaled_Dataset[0]: [nparray], Scaled Training Input Set/input Set
+        Scaled_Dataset[1]: [nparray], Scaled Training Target Set/target Set
         Scaled_Dataset[2]: [nparray], Scaled Test Input Set
         Scaled_Dataset[3]: [nparray], Scaled Test Target Set
         (Scaled_Dataset[4]: [nparray], Scaled Development Input Set
         Scaled_Dataset[5]: [nparray], Scaled Development Target Set)
         """
+
         scaler=StandardScaler()
         Scaled_Dataset=[]
         for i in range(len(Merge_Dataset)):

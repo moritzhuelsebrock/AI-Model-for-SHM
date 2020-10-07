@@ -45,13 +45,12 @@ class Hyperparameter:
 
         return estimator
 
-    def HyperSearh(self,DP,deep=3, Development_Data=True, Customer_Data=False,random_mode=True,iter=10,cv=5, OptInfo=False):
+    def HyperSearh(self,DP,deep=3, Development_Data=True, random_mode=True,iter=10,cv=5, OptInfo=False):
         """
         Optimization and then Assignment of Hyperparameter. Either Random Search or Grid Search.
         :param DP: [Data_Preperation], Dataset after Pre Processing.
         :param deep: [int], Number of Hidden Layer.
         :param Development_Data:[boolean], Using Development Data for optimization or not.
-        :param Customer_Data: [boolean], True when "Predicting" using Customer Data.
         :param random_mode: [boolean], True: Random Search, False: Grid Search.
         :param iter: [int], Number of Iteration Random Search.
         :param cv: [int] Cross Validation by K-Fold. cv is the Factor K.
@@ -102,9 +101,6 @@ class Hyperparameter:
             hyper_search = RandomizedSearchCV(estimator, param_distributions=param_space,n_jobs=-1, n_iter=iter,cv=cv)
         else:
             hyper_search = GridSearchCV(estimator, param_grid=param_space,n_jobs=-1)
-
-        if Customer_Data==True:
-            Development_Data=False
 
         if Development_Data==True:
             # Use Development Data to optimize

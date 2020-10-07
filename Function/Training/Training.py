@@ -6,7 +6,7 @@ from sklearn.neural_network import MLPRegressor
 from Function.Predicting import Prediction
 class Regressor:
     def __init__(self,DP,op):
-        self.Regression=self.OptRegression(DP,op)
+        self.OptRegressor=self.OptRegression(DP,op)
     def OptRegression(self,DP,Op):
         """
         Training the optimal MLP Regressor.

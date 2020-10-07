@@ -24,7 +24,7 @@ def main():
     test_size=float(input("Size of Test Data?"))
     del_size=float(input("Size of Development Data?"))
     d=dp.DataSplit(test_size=test_size,del_size=del_size)
-    Md=dp.MergeSplitData(d)
+    Md=dp.MergeSplitData()
     dp.DataScaling(Md)
 
     # Processing
@@ -37,13 +37,13 @@ def main():
     pre=Tr.Regressor(DP=dp,op=h)
 
     # Evaluation
-    Prediction.Predicting(pre.Regression, dp)
+    Prediction.Predicting(pre.OptRegressor, dp)
     while True:
         Channel=input("Which System State?(Channel)")
         if Channel == "End":
             break
         else:
-            Prediction.Predicting(pre.Regression,dp,Channel=Channel)
+            Prediction.Predicting(pre.OptRegressor,dp,Channel=Channel)
 
     # Predicting
     if input("Start Predicting?")=="Y":
@@ -53,16 +53,16 @@ def main():
             if input("Last Data Set?") == "Y":
                 break
         dr1 = DR.DataReader(f"../Data/Customer Data", *fileC)
-        d1 = dr1.LoadData(Merge=True)
+        d1 = dr1.LoadData(mode="Predicting")
         dp1 = DP.Data_Preperation(*d1)
-        dp1.DataScaling(dp1.MergeData(d1))
-        Prediction.Predicting(pre.Regression,dp1,Time_Domain=True)
+        dp1.DataScaling(dp1.MergeData())
+        Prediction.Predicting(pre.OptRegressor,dp1,Time_Domain=True)
         while True:
             Channel = input("Which System State?(Channel)")
             if Channel == "End":
                 break
             else:
-                Prediction.Predicting(pre.Regression, dp1, Time_Domain=True, Channel=Channel)
+                Prediction.Predicting(pre.OptRegressor, dp1, Time_Domain=True, Channel=Channel)
 
 
 

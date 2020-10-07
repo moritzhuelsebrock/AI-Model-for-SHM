@@ -24,6 +24,8 @@ def Predicting(Regressor,DP,Time_Domain=False,Channel="Overview"):
     else:
         Prediction=Regressor.predict(DP.Scaled_Dataset[0])
         Target = DP.Scaled_Dataset[1]
+
+    # Assign Output Channel(Target)
     m2_T=Target[:,0]
     m3_T=Target[:,1]
     m4_T=Target[:,2]
@@ -31,12 +33,16 @@ def Predicting(Regressor,DP,Time_Domain=False,Channel="Overview"):
     alpha_T=Target[:,4]
     beta_T=Target[:,5]
     Time_Domain=Prediction.shape[0]
+
+    # Assign Output Channel(Prediction)
     m2=Prediction[:,0]
     m3=Prediction[:,1]
     m4=Prediction[:,2]
     k=Prediction[:,3]
     alpha=Prediction[:,4]
     beta=Prediction[:,5]
+
+    # Visualization
     if Channel=="Overview":
         plt.subplot(321)
         plt.scatter(range(Time_Domain),m2,marker="x",color="blue")

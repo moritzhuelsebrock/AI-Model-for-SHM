@@ -5,6 +5,7 @@ class DataReader(object):
                'EVnorm2_1', 'EVnorm2_2', 'EVnorm2_3', 'EVnorm3_1', 'EVnorm3_2', 'EVnorm3_3', 'Tem']
     label_y = ['m2', 'm3', 'm4', 'k', 'alpha', 'beta']
 
+
     def __init__(self,path='Training Data',*file_name,type="csv"):
         """
         Constructor of DataReader.
@@ -26,21 +27,27 @@ class DataReader(object):
         print(df.head(5))
         print("Dimension is",df.shape)
 
-    def LoadData(self,Merge=False,overview='off'):
+    def LoadData(self,mode="Training",overview='off'):
         """
         Load the Data Set. Loading Multiple Data sets are allowed.
+        :param mode: Choose Training Mode or Predicting Mode
         :param overview: [str], turn "on" to make an overview of Data Set.
         :return:
         Tuple(input_set,target_set)
+        For Training:
         input_set: [Dict]. Key is the number of the Data Set, Value is ndarray, Labeled Input Data Set.
         target_set: [Dict]. Key is the number of the Data Set; Value is ndarray, Labeled Target Data Set.
+        For Predicting:
+        input_set: [Dict]. Concatenated input set, {0:input set(ndarray)}
+        target_set: [Dict]. Concatenated target set, {0:target set(ndarray)}
         """
+
         df=[]
         input_set={}
         target_set={}
         count=0
 
-        if Merge==False:
+        if mode=="Training":
 
             for i in range(self.file_name.__len__()):
                 df.append(pd.read_csv(f'{self.path}/{self.file_name[i]}.{self.type}'))
@@ -52,14 +59,14 @@ class DataReader(object):
                     # print(df[i].head(5))
                     # print("Dimension is",df[i].shape)
 
-                print(f"{i+1} Data set has been loaded successfully.")
+                print(f"{i+1} Data set for Training has been loaded successfully.")
 
-        elif Merge==True:
+        elif mode=="Predicting":
 
             for i in range(self.file_name.__len__()):
                 df.append(pd.read_csv(f'{self.path}/{self.file_name[i]}.{self.type}'))
                 count = count + 1
-            print(f"{count} Data Set has been concatenated successfully.")
+            print(f"{count} Data Set for Predicting has been concatenated successfully.")
             df_Concat = pd.concat(df)
             input_set[0] = df_Concat[self.label_x].values
             target_set[0] = df_Concat[self.label_y].values
