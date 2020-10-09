@@ -104,10 +104,10 @@ class Hyperparameter:
 
         if Development_Data==True:
             # Use Development Data to optimize
-            hyper_search.fit(DP.Scaled_Dataset[4],DP.Scaled_Dataset[5])
+            hyper_search.fit(DP.Scaled_Dataset[DP.InverseLabel["X_del"]],DP.Scaled_Dataset[DP.InverseLabel["y_del"]])
         else:
             # Use Training Data/Customer Data to optimize
-            hyper_search.fit(DP.Scaled_Dataset[0], DP.Scaled_Dataset[1])
+            hyper_search.fit(DP.Scaled_Dataset[DP.InverseLabel["X_train"]], DP.Scaled_Dataset[DP.InverseLabel["y_train"]])
 
 
 

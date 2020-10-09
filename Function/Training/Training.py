@@ -5,8 +5,11 @@ from Function.Training import Optimization as Op
 from sklearn.neural_network import MLPRegressor
 from Function.Predicting import Prediction
 class Regressor:
-    def __init__(self,DP,op):
-        self.OptRegressor=self.OptRegression(DP,op)
+    def __init__(self,DP,op,Ini=False):
+        if Ini==False:
+            self.OptRegressor=self.OptRegression(DP,op)
+        else:
+            self.IniRegressor=self.IniRegression(DP)
     def OptRegression(self,DP,Op):
         """
         Training the optimal MLP Regressor.
@@ -16,13 +19,15 @@ class Regressor:
         OptRegressor: [MLP Regressor],Trained MLP Regressor with optimal Hyperparameter.
         """
         OptRegressor=MLPRegressor(hidden_layer_sizes=Op.HiddenLayerSize,alpha=Op.alpha,max_iter=Op.Max_iter*2)
-        OptRegressor.fit(DP.Scaled_Dataset[0],DP.Scaled_Dataset[1])
+        OptRegressor.fit(DP.Scaled_Dataset[DP.InverseLabel["X"]],DP.Scaled_Dataset[DP.InverseLabel["y"]])
         # OptRegressor.score(DP.Scaled_Dataset[2],DP.Scaled_Dataset[3])
         # Prediction=OptRegressor.predict(DP.Scaled_Dataset[2])
         return OptRegressor
         # return Prediction
-    def IniRegression(self):
-        pass
+    def IniRegression(self,DP):
+        IniRegressor=MLPRegressor(solver="lbfgs", alpha=4.175e-05, hidden_layer_sizes=(53, 26, 25), max_iter=10000)
+        IniRegressor.fit(DP.Scaled_Dataset[DP.InverseLabel["X"]],DP.Scaled_Dataset[DP.InverseLabel["y"]])
+        return IniRegressor
 
 
 # Test

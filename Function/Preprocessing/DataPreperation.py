@@ -3,11 +3,14 @@ import sys
 from Data import DataReader as DR
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from matplotlib import pyplot as plt
 class Data_Preperation:
     def __init__(self, *data_set,mode="Training"):
         self.input_set=data_set[0]
         self.target_set=data_set[1]
         self.Label={}
+        self.InverseLabel = {"X_train": 0, "y_train": 1, "X_test": 2, "y_test": 3,"X":0,"y":1}
+        self.Merge_Dataset=[]
         self.Split_Dataset=[]
         self.Scaled_Dataset=[]
         self.input_feature=self.input_set[0].shape[1]
@@ -41,6 +44,8 @@ class Data_Preperation:
             self.AddParameter(Split_Dataset,2)
             self.Label[4]="X_del"
             self.Label[5]="y_del"
+            self.InverseLabel["X_del"]=4
+            self.InverseLabel["y_del"]=5
 
         for i in range(len(self.input_set)):
             Split_Dataset[0][i], Split_Dataset[2][i], Split_Dataset[1][i], Split_Dataset[3][i]= \
@@ -62,6 +67,7 @@ class Data_Preperation:
         Merge_Dataset=["",""]
         Merge_Dataset[0]=self.input_set[0]
         Merge_Dataset[1]=self.target_set[0]
+        self.Merge_Dataset=Merge_Dataset
         return Merge_Dataset
 
     def MergeSplitData(self):
@@ -83,6 +89,7 @@ class Data_Preperation:
                 for j in range(len(self.Split_Dataset[i])):
                     if j>0:
                         Merge_Dataset[i]=np.append(Merge_Dataset[i], self.Split_Dataset[i][j],axis=0)
+        self.Merge_Dataset=Merge_Dataset
         return Merge_Dataset
 
     def DataScaling(self,Merge_Dataset,Mean=False,Var=False):
@@ -114,6 +121,13 @@ class Data_Preperation:
             if Var==True:
                 print(f"Standard Deviation of {self.Label[i]}. Set is {scaler.var_}")
         self.Scaled_Dataset=Scaled_Dataset
+        # a=scaler.transform(Scaled_Dataset[5], copy=True)
+        # plt.scatter(range(Scaled_Dataset[5].shape[0]),Scaled_Dataset[5][:,1])
+        # a=scaler.inverse_transform(Scaled_Dataset[5])
+        # print()
+        # plt.scatter(range(Scaled_Dataset[5].shape[0]),a[:,1],marker="x", color="blue")
+        # plt.scatter(range(Scaled_Dataset[5].shape[0]),Merge_Dataset[5][:,1],marker="o", color="red")
+        # plt.show()
         return Scaled_Dataset
 
 
