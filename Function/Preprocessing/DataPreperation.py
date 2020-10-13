@@ -1,22 +1,29 @@
 import numpy as np
+import joblib
 import sys
 from Data import DataReader as DR
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from matplotlib import pyplot as plt
 class Data_Preperation:
-    def __init__(self, *data_set,mode="Training"):
+    def __init__(self, mode,*,data_set,DP=None):
         self.input_set=data_set[0]
         self.target_set=data_set[1]
         self.Label={}
         self.InverseLabel = {"X_train": 0, "y_train": 1, "X_test": 2, "y_test": 3,"X":0,"y":1}
         self.Merge_Dataset=[]
-        self.Split_Dataset=[]
         self.Scaled_Dataset=[]
         self.input_feature=self.input_set[0].shape[1]
         self.target_feature=self.target_set[0].shape[1]
+        self.scaler=StandardScaler()
+
+        if mode=="Training":
+            self.Split_Dataset = []
+            self.Merge_Split_Dataset = []
+            self.scaler.fit(self.MergeData()[0])
+
         if mode=="Predicting":
-            pass
+            self.scaler=DP.scaler
 
     def AddParameter(self,L,number):
         for i in range(number):
@@ -60,13 +67,18 @@ class Data_Preperation:
 
     def MergeData(self):
         """
-        Merge the Dataset(for Predicting)
+        Merge the Data set.
         :return:
-        Merge_Dataset: [List], [input, target]
+        Merge_Dataset: [List], [X, y].
+        Merge_Dataset[0]: [ndarray], Merged Input set.
+        Merge_Dataset[1]: [ndarray],Merged Target set
         """
-        Merge_Dataset=["",""]
-        Merge_Dataset[0]=self.input_set[0]
-        Merge_Dataset[1]=self.target_set[0]
+        self.Label={0:"X",1:"y"}
+        Merge_Dataset=[self.input_set[0],self.target_set[0]]
+        for i in range(1,len(self.input_set)):
+            Merge_Dataset[0]=np.append(Merge_Dataset[0],self.input_set[i],axis=0)
+            Merge_Dataset[1]=np.append(Merge_Dataset[1],self.target_set[i],axis=0)
+        print(type(Merge_Dataset))
         self.Merge_Dataset=Merge_Dataset
         return Merge_Dataset
 
@@ -74,60 +86,93 @@ class Data_Preperation:
         """
         Merge the already split Dataset(for Training)
         :return:
-        Merge_Dataset: [List], [X_train, y_train, X_test, y_test, X_del, y_del].
-        Merge_Dataset[0]: [nparray], merged Training Input Set
-        Merge_Dataset[1]: [nparray], merged Training Target Set
-        Merge_Dataset[2]: [nparray], merged Test Input Set
-        Merge_Dataset[3]: [nparray], merged Test Target Set
-        (Merge_Dataset[4]: [nparray], merged Development Input Set
-        Merge_Dataset[5]: [nparray], merged Development Target Set)
+        Merge_Split_Dataset: [List], [X_train, y_train, X_test, y_test, X_del, y_del].
+        Merge_Split_Dataset[0]: [ndarray], merged Training Input Set
+        Merge_Split_Dataset[1]: [ndarray], merged Training Target Set
+        Merge_Split_Dataset[2]: [ndarray], merged Test Input Set
+        Merge_Split_Dataset[3]: [ndarray], merged Test Target Set
+        (Merge_Split_Dataset[4]: [ndarray], merged Development Input Set
+        Merge_Split_Dataset[5]: [ndarray], merged Development Target Set)
         """
-        Merge_Dataset=[]
+        Merge_Split_Dataset=[]
         for i in range(len(self.Split_Dataset)):
-            Merge_Dataset.append(self.Split_Dataset[i][0])
+            Merge_Split_Dataset.append(self.Split_Dataset[i][0])
             if not len(self.Split_Dataset[0])==1:
                 for j in range(len(self.Split_Dataset[i])):
                     if j>0:
-                        Merge_Dataset[i]=np.append(Merge_Dataset[i], self.Split_Dataset[i][j],axis=0)
-        self.Merge_Dataset=Merge_Dataset
-        return Merge_Dataset
+                        Merge_Split_Dataset[i]=np.append(Merge_Split_Dataset[i], self.Split_Dataset[i][j],axis=0)
+        self.Merge_Split_Dataset=Merge_Split_Dataset
+        return Merge_Split_Dataset
 
-    def DataScaling(self,Merge_Dataset,Mean=False,Var=False):
+    def DataScaling(self,Merge_Dataset,Load_Model=False,Unify=True,Path=None,Mean=False,Var=False):
 
         """
         Use Mean Value and Standard Deviation of features to scale the Merged Data Set(for Training / Predicting).
-        :param Merge_Dataset: [List], For Training: [X_train, y_train, X_test, y_test, X_del, y_del]
-                                      For Predicting: [input, target]
+        :param Merge_Dataset: [List], For Training: Merge_Split_Dataset, [X_train, y_train, X_test, y_test, X_del, y_del]
+                                      For Predicting: Merge_Dataset, [input, target]
+        :param Load_Model: [boolean], When True, Input the existed scaler from external .joblib file.
+        :param Unify: [boolean], Use unified Mean and Std.(True) or seperate Mean and Std.(False) to scale the Dataset.
+        :param Path: [Str], Path of the existed scaler.
         :param Mean: [boolean], show Mean value of each feature when "True".
         :param Var:  [boolean], shown Variance of each feature when "True".
         :return:
         Scaled_Dataset for Training: [X_train, y_train, X_test, y_test, X_del, y_del]
-                       for Predicting: [input, target]
-        Scaled_Dataset[0]: [nparray], Scaled Training Input Set/input Set
-        Scaled_Dataset[1]: [nparray], Scaled Training Target Set/target Set
-        Scaled_Dataset[2]: [nparray], Scaled Test Input Set
-        Scaled_Dataset[3]: [nparray], Scaled Test Target Set
-        (Scaled_Dataset[4]: [nparray], Scaled Development Input Set
-        Scaled_Dataset[5]: [nparray], Scaled Development Target Set)
+                       for Predicting: [X, y]
+        Scaled_Dataset[0]: [ndarray], Scaled Training Input Set/input Set
+        Scaled_Dataset[1]: [ndarray], Scaled Training Target Set/target Set
+        Scaled_Dataset[2]: [ndarray], Scaled Test Input Set
+        Scaled_Dataset[3]: [ndarray], Scaled Test Target Set
+        (Scaled_Dataset[4]: [ndarray], Scaled Development Input Set
+        Scaled_Dataset[5]: [ndarray], Scaled Development Target Set)
         """
+        Scaled_Dataset = []
 
-        scaler=StandardScaler()
-        Scaled_Dataset=[]
-        for i in range(len(Merge_Dataset)):
-            Scaled_Dataset.append("")
-            Scaled_Dataset[i]=scaler.fit_transform(Merge_Dataset[i])
-            if Mean==True:
-                print(f"Mean value of {self.Label[i]}: {scaler.mean_}")
-            if Var==True:
-                print(f"Standard Deviation of {self.Label[i]}. Set is {scaler.var_}")
+        # Perform Scaling
+        if Load_Model==False:
+            scaler=StandardScaler()
+            if Unify==False:
+                print("Use different Scaler!")
+            else:
+                print("Use Unified Scaler!")
+                if Mean==True:
+                    print(f"Mean value of Unified Data:{self.scaler.mean_}")
+                if Var==True:
+                    print(f"Variation of Unified Data:{self.scaler.var_}")
+
+            for i in range(len(Merge_Dataset)):
+                Scaled_Dataset.append("")
+
+                # Scale the input feature
+                if i%2==0:
+
+                    # Only Scale the input feature with different Mean and Std
+                    if Unify==False:
+                        Scaled_Dataset[i]=scaler.fit_transform(Merge_Dataset[i])
+                        if Mean == True:
+                            print(f"Mean value of {self.Label[i]}: {scaler.mean_}")
+                        if Var == True:
+                            print(f"Variation of {self.Label[i]}. Set is {scaler.var_}")
+
+                    # Scale the input feature with unified Mean and Std
+                    else:
+                        Scaled_Dataset[i] = self.scaler.transform(Merge_Dataset[i])
+
+                else:
+                    Scaled_Dataset[i]=Merge_Dataset[i]
+
+        # Scale with existed Scaler
+        else:
+            scaler=joblib.load(Path)
+            for i in range(len(Merge_Dataset)):
+                Scaled_Dataset.append("")
+                if i%2==0:
+                    Scaled_Dataset[i]=scaler.transform(Merge_Dataset[i])
+                else:
+                    Scaled_Dataset[i]=Merge_Dataset[i]
+            print("Use existed scaler, mean value:\n",scaler.mean_)
+
         self.Scaled_Dataset=Scaled_Dataset
-        # a=scaler.transform(Scaled_Dataset[5], copy=True)
-        # plt.scatter(range(Scaled_Dataset[5].shape[0]),Scaled_Dataset[5][:,1])
-        # a=scaler.inverse_transform(Scaled_Dataset[5])
-        # print()
-        # plt.scatter(range(Scaled_Dataset[5].shape[0]),a[:,1],marker="x", color="blue")
-        # plt.scatter(range(Scaled_Dataset[5].shape[0]),Merge_Dataset[5][:,1],marker="o", color="red")
-        # plt.show()
+
         return Scaled_Dataset
 
 
