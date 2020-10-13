@@ -9,7 +9,8 @@ class Regressor:
         if Ini==False:
             self.OptRegressor=self.OptRegression(DP,op)
         else:
-            self.IniRegressor=self.IniRegression(DP)
+            self.IniRegressor=self.IniRegression(DP,op)
+
     def OptRegression(self,DP,Op):
         """
         Training the optimal MLP Regressor.
@@ -20,13 +21,14 @@ class Regressor:
         """
         OptRegressor=MLPRegressor(hidden_layer_sizes=Op.HiddenLayerSize,alpha=Op.alpha,max_iter=Op.Max_iter*2)
         OptRegressor.fit(DP.Scaled_Dataset[DP.InverseLabel["X"]],DP.Scaled_Dataset[DP.InverseLabel["y"]])
-        # OptRegressor.score(DP.Scaled_Dataset[2],DP.Scaled_Dataset[3])
-        # Prediction=OptRegressor.predict(DP.Scaled_Dataset[2])
+        print("R2:",OptRegressor.score(DP.Scaled_Dataset[DP.InverseLabel["X_test"]],DP.Scaled_Dataset[DP.InverseLabel["y_test"]]))
         return OptRegressor
         # return Prediction
-    def IniRegression(self,DP):
-        IniRegressor=MLPRegressor(solver="lbfgs", alpha=4.175e-05, hidden_layer_sizes=(53, 26, 25), max_iter=10000)
+
+    def IniRegression(self,DP,Op):
+        IniRegressor=MLPRegressor(solver="lbfgs", alpha=0.00010826367338740541, hidden_layer_sizes=(46, 33, 25), max_iter=8000)
         IniRegressor.fit(DP.Scaled_Dataset[DP.InverseLabel["X"]],DP.Scaled_Dataset[DP.InverseLabel["y"]])
+        print("R2:",IniRegressor.score(DP.Scaled_Dataset[DP.InverseLabel["X_test"]],DP.Scaled_Dataset[DP.InverseLabel["y_test"]]))
         return IniRegressor
 
 
